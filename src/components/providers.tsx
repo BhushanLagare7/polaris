@@ -9,7 +9,7 @@ import {
   Unauthenticated,
 } from "convex/react";
 import { ConvexProviderWithClerk } from "convex/react-clerk";
-import { ClerkProvider, useAuth, UserButton } from "@clerk/nextjs";
+import { ClerkProvider, useAuth } from "@clerk/nextjs";
 import { dark } from "@clerk/themes";
 
 import { AuthLoadingView } from "@/features/auth/components/auth-loading-view";
@@ -33,10 +33,7 @@ export function Providers({ children }: { children: ReactNode }) {
           disableTransitionOnChange
           enableSystem
         >
-          <Authenticated>
-            <UserButton />
-            {children}
-          </Authenticated>
+          <Authenticated>{children}</Authenticated>
           <Unauthenticated>
             <UnauthenticatedView />
           </Unauthenticated>

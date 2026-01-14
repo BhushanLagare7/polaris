@@ -1,0 +1,184 @@
+import { useState } from "react";
+
+import ky from "ky";
+import { CopyIcon, HistoryIcon, LoaderIcon, PlusIcon } from "lucide-react";
+import { toast } from "sonner";
+
+import {
+  Conversation,
+  ConversationContent,
+  ConversationScrollButton,
+} from "@/components/ai-elements/conversation";
+import {
+  Message,
+  MessageAction,
+  MessageActions,
+  MessageContent,
+  MessageResponse,
+} from "@/components/ai-elements/message";
+import {
+  PromptInput,
+  PromptInputBody,
+  PromptInputFooter,
+  type PromptInputMessage,
+  PromptInputSubmit,
+  PromptInputTextarea,
+  PromptInputTools,
+} from "@/components/ai-elements/prompt-input";
+import { Button } from "@/components/ui/button";
+
+import { Id } from "../../../../convex/_generated/dataModel";
+import { DEFAULT_CONVERSATION_TITLE } from "../../../../convex/constants";
+import {
+  useConversation,
+  useConversations,
+  useCreateConversation,
+  useMessages,
+} from "../hooks/use-conversations";
+
+export const ConversationSidebar = ({
+  projectId,
+}: {
+  projectId: Id<"projects">;
+}) => {
+  const [input, setInput] = useState("");
+  const [selectedConversationId, setSelectedConversationId] =
+    useState<Id<"conversations"> | null>(null);
+
+  const createConversation = useCreateConversation();
+  const conversations = useConversations(projectId);
+
+  const activeConversationId =
+    selectedConversationId ?? conversations?.[0]?._id ?? null;
+
+  const activeConversation = useConversation(activeConversationId);
+  const conversationMessages = useMessages(activeConversationId);
+
+  // Check if any message is currently processing
+  const isProcessing = conversationMessages?.some(
+    (message) => message.status === "processing"
+  );
+
+  const handleCreateConversation = async () => {
+    try {
+      const newConversationId = await createConversation({
+        projectId,
+        title: DEFAULT_CONVERSATION_TITLE,
+      });
+      setSelectedConversationId(newConversationId);
+
+      return newConversationId;
+    } catch (error) {
+      console.error("Failed to create conversation:", error);
+      toast.error("Failed to create conversation");
+
+      return null;
+    }
+  };
+
+  const handleSubmit = async (message: PromptInputMessage) => {
+    // If processing and no new message, this is just a stop function
+    if (isProcessing && !message.text) {
+      // TODO: await handleCancel()
+      setInput("");
+      return;
+    }
+
+    let conversationId = activeConversationId;
+    if (!conversationId) {
+      conversationId = await handleCreateConversation();
+      if (!conversationId) {
+        return;
+      }
+    }
+
+    // Trigger inngest function via API
+    try {
+      await ky.post("/api/messages", {
+        json: {
+          conversationId,
+          message: message.text,
+        },
+      });
+      setInput("");
+    } catch (error) {
+      console.error("Failed to trigger inngest function:", error);
+      toast.error("Failed to send message");
+      return;
+    }
+  };
+
+  return (
+    <div className="flex flex-col h-full bg-sidebar">
+      <div className="h-8.75 flex items-center justify-between border-b">
+        <div className="pl-3 text-sm truncate">
+          {activeConversation?.title ?? DEFAULT_CONVERSATION_TITLE}
+        </div>
+        <div className="flex gap-1 items-center px-1">
+          <Button size="icon-xs" variant="highlight">
+            <HistoryIcon className="size-3.5" />
+          </Button>
+          <Button
+            size="icon-xs"
+            variant="highlight"
+            onClick={handleCreateConversation}
+          >
+            <PlusIcon className="size-3.5" />
+          </Button>
+        </div>
+      </div>
+      <Conversation className="flex-1">
+        <ConversationContent>
+          {conversationMessages?.map((message, messageIndex) => (
+            <Message key={message._id} from={message.role}>
+              <MessageContent>
+                {message.status === "processing" ? (
+                  <div className="flex gap-2 items-center text-muted-foreground">
+                    <LoaderIcon className="animate-spin size-4" />
+                    <span>Thinking...</span>
+                  </div>
+                ) : (
+                  <MessageResponse>{message.content}</MessageResponse>
+                )}
+                {message.role === "assistant" &&
+                  message.status === "completed" &&
+                  messageIndex === (conversationMessages?.length ?? 0) - 1 && (
+                    <MessageActions>
+                      <MessageAction
+                        label="Copy"
+                        onClick={() => {
+                          navigator.clipboard.writeText(message.content);
+                        }}
+                      >
+                        <CopyIcon className="size-3" />
+                      </MessageAction>
+                    </MessageActions>
+                  )}
+              </MessageContent>
+            </Message>
+          ))}
+        </ConversationContent>
+        <ConversationScrollButton />
+      </Conversation>
+      <div className="p-3">
+        <PromptInput className="mt-2" onSubmit={handleSubmit}>
+          <PromptInputBody>
+            <PromptInputTextarea
+              disabled={isProcessing}
+              placeholder="Ask Polaris anything..."
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+            />
+          </PromptInputBody>
+          <PromptInputFooter>
+            <PromptInputTools />
+            <PromptInputSubmit
+              disabled={isProcessing ? false : !input}
+              status={isProcessing ? "streaming" : undefined}
+            />
+          </PromptInputFooter>
+        </PromptInput>
+      </div>
+    </div>
+  );
+};

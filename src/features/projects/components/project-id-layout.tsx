@@ -2,11 +2,11 @@
 
 import { Allotment } from "allotment";
 
+import { ConversationSidebar } from "@/features/conversations/components/conversation-sidebar";
+
 import { Id } from "../../../../convex/_generated/dataModel";
 
 import { Navbar } from "./navbar";
-
-import "allotment/dist/style.css";
 
 const MIN_SIDEBAR_WIDTH = 200;
 const MAX_SIDEBAR_WIDTH = 800;
@@ -36,7 +36,7 @@ export const ProjectIdLayout = ({
             preferredSize={DEFAULT_CONVERSATION_SIDEBAR_WIDTH}
             snap
           >
-            <div>Conversation Sidebar</div>
+            <ConversationSidebar projectId={projectId} />
           </Allotment.Pane>
           <Allotment.Pane>{children}</Allotment.Pane>
         </Allotment>

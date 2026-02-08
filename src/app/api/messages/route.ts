@@ -26,7 +26,7 @@ export async function POST(req: Request) {
     if (!internalKey) {
       return NextResponse.json(
         { error: "Internal key not configured" },
-        { status: 500 }
+        { status: 500 },
       );
     }
 
@@ -36,7 +36,7 @@ export async function POST(req: Request) {
     if (!conversationId || !message) {
       return NextResponse.json(
         { error: "Missing conversationId or message" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -49,13 +49,37 @@ export async function POST(req: Request) {
     if (!conversation) {
       return NextResponse.json(
         { error: "Conversation not found" },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
     const projectId = conversation.projectId;
 
-    // TODO: Check for processing messages
+    // Find all processing messages in this project
+    const processingMessages = await convex.query(
+      api.system.getProcessingMessages,
+      { internalKey, projectId },
+    );
+
+    if (processingMessages.length > 0) {
+      // Cancel all processing messages
+      await Promise.all(
+        processingMessages.map(async (message) => {
+          await inngest.send({
+            name: "message/cancel",
+            data: {
+              messageId: message._id,
+            },
+          });
+
+          await convex.mutation(api.system.updateMessageStatus, {
+            internalKey,
+            messageId: message._id,
+            status: "cancelled",
+          });
+        }),
+      );
+    }
 
     // Create user message
     await convex.mutation(api.system.createMessage, {
@@ -66,6 +90,7 @@ export async function POST(req: Request) {
       role: "user",
     });
 
+    // Create assistant message placeholder with processing status
     const assistantMessageId = await convex.mutation(api.system.createMessage, {
       internalKey,
       conversationId: conversationId as Id<"conversations">,
@@ -75,12 +100,14 @@ export async function POST(req: Request) {
       status: "processing",
     });
 
-    // TODO: Invoke inngest to process the message
+    // Send event to inngest to process the message
     const event = await inngest.send({
       name: "message/sent",
       data: {
-        // conversationId,
+        conversationId,
+        message,
         messageId: assistantMessageId,
+        projectId,
       },
     });
 
@@ -93,7 +120,7 @@ export async function POST(req: Request) {
     console.error("Error in POST /api/messages:", error);
     return NextResponse.json(
       { error: "Internal server error" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

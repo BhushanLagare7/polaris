@@ -10,16 +10,16 @@ export default defineSchema({
       v.union(
         v.literal("importing"),
         v.literal("completed"),
-        v.literal("failed")
-      )
+        v.literal("failed"),
+      ),
     ),
     exportStatus: v.optional(
       v.union(
         v.literal("exporting"),
         v.literal("completed"),
         v.literal("failed"),
-        v.literal("cancelled")
-      )
+        v.literal("cancelled"),
+      ),
     ),
     exportRepoUrl: v.optional(v.string()),
   }).index("by_owner", ["ownerId"]),
@@ -49,10 +49,10 @@ export default defineSchema({
       v.union(
         v.literal("processing"),
         v.literal("completed"),
-        v.literal("cancelled")
-      )
+        v.literal("cancelled"),
+      ),
     ),
   })
     .index("by_conversation", ["conversationId"])
-    .index("by_project", ["projectId", "status"]),
+    .index("by_project_status", ["projectId", "status"]),
 });

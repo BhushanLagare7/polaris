@@ -4,6 +4,11 @@ import { useMutation, useQuery } from "convex/react";
 import { api } from "../../../../convex/_generated/api";
 import { Id } from "../../../../convex/_generated/dataModel";
 
+export const useUpdateProjectSettings = () => {
+  // TODO: add optimistic mutation
+  return useMutation(api.projects.updateSettings);
+};
+
 export const useProject = (projectId: Id<"projects">) => {
   return useQuery(api.projects.getById, { id: projectId });
 };
@@ -36,7 +41,7 @@ export const useCreateProject = () => {
           ...existingProjects,
         ]);
       }
-    }
+    },
   );
 };
 
@@ -57,7 +62,7 @@ export const useRenameProject = () => {
             ...existingProject,
             name: args.name,
             updatedAt: now,
-          }
+          },
         );
       }
 
@@ -75,9 +80,9 @@ export const useRenameProject = () => {
                   updatedAt: now,
                 }
               : project;
-          })
+          }),
         );
       }
-    }
+    },
   );
 };

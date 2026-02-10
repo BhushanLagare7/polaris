@@ -12,6 +12,7 @@ import { cn } from "@/lib/utils";
 import { Id } from "../../../../convex/_generated/dataModel";
 
 import { FileExplorer } from "./file-explorer";
+import { PreviewView } from "./preview-view";
 
 const MIN_SIDEBAR_WIDTH = 200;
 const MAX_SIDEBAR_WIDTH = 800;
@@ -32,7 +33,7 @@ const Tab = ({
       aria-selected={isActive}
       className={cn(
         "flex gap-2 items-center px-3 h-full border-r cursor-pointer text-muted-foreground hover:bg-accent/30",
-        isActive && "bg-background text-foreground"
+        isActive && "bg-background text-foreground",
       )}
       role="tab"
       onClick={onClick}
@@ -79,7 +80,7 @@ export const ProjectIdView = ({ projectId }: ProjectIdViewProps) => {
         <div
           className={cn(
             "absolute inset-0",
-            activeView === "editor" ? "visible" : "invisible"
+            activeView === "editor" ? "visible" : "invisible",
           )}
         >
           <Allotment defaultSizes={[DEFAULT_SIDEBAR_WIDTH, DEFAULT_MAIN_SIZE]}>
@@ -99,10 +100,10 @@ export const ProjectIdView = ({ projectId }: ProjectIdViewProps) => {
         <div
           className={cn(
             "absolute inset-0",
-            activeView === "preview" ? "visible" : "invisible"
+            activeView === "preview" ? "visible" : "invisible",
           )}
         >
-          <div>Preview</div>
+          <PreviewView projectId={projectId} />
         </div>
       </div>
     </div>

@@ -13,7 +13,7 @@ export const PreviewTerminal = ({ output }: PreviewTerminalProps) => {
   const terminalRef = useRef<Terminal | null>(null);
   const fitAddonRef = useRef<FitAddon | null>(null);
   const lastLengthRef = useRef(0);
-  // Initialize terminal
+  // INITIALIZE TERMINAL
   useEffect(() => {
     if (!containerRef.current || terminalRef.current) return;
     const terminal = new Terminal({
@@ -28,7 +28,7 @@ export const PreviewTerminal = ({ output }: PreviewTerminalProps) => {
     terminal.open(containerRef.current);
     terminalRef.current = terminal;
     fitAddonRef.current = fitAddon;
-    // Write existing output on mount
+    // WRITE EXISTING OUTPUT ON MOUNT
     if (output) {
       terminal.write(output);
       lastLengthRef.current = output.length;
@@ -42,10 +42,14 @@ export const PreviewTerminal = ({ output }: PreviewTerminalProps) => {
       terminalRef.current = null;
       fitAddonRef.current = null;
     };
-    // "output" does not need to be a dependency since it is not intended
-    // to update anything, just used on mount
+
+    /**
+     * "output" DOES NOT NEED TO BE A DEPENDENCY SINCE IT IS NOT INTENDED
+     * TO UPDATE ANYTHING, JUST USED ON MOUNT
+     */
   }, []);
-  // Write output
+
+  // WRITE OUTPUT
   useEffect(() => {
     if (!terminalRef.current) return;
     if (output.length < lastLengthRef.current) {

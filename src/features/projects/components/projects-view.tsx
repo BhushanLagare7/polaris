@@ -20,6 +20,7 @@ import { Kbd } from "@/components/ui/kbd";
 
 import { useCreateProject } from "../hooks/use-projects";
 
+import { ImportGithubDialog } from "./import-github-dialog";
 import { ProjectsCommandDialog } from "./projects-command-dialog";
 import { ProjectsList } from "./projects-list";
 
@@ -32,20 +33,24 @@ export const ProjectsView = () => {
   const createProject = useCreateProject();
 
   const [commandDialogOpen, setCommandDialogOpen] = useState(false);
+  const [importDialogOpen, setImportDialogOpen] = useState(false);
 
   useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "k" && (event.metaKey || event.ctrlKey)) {
-        event.preventDefault();
-        setCommandDialogOpen(true);
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.metaKey || e.ctrlKey) {
+        if (e.key === "k") {
+          e.preventDefault();
+          setCommandDialogOpen(true);
+        }
+        if (e.key === "i") {
+          e.preventDefault();
+          setImportDialogOpen(true);
+        }
       }
     };
 
     document.addEventListener("keydown", handleKeyDown);
-
-    return () => {
-      document.removeEventListener("keydown", handleKeyDown);
-    };
+    return () => document.removeEventListener("keydown", handleKeyDown);
   }, []);
 
   return (
@@ -53,6 +58,10 @@ export const ProjectsView = () => {
       <ProjectsCommandDialog
         open={commandDialogOpen}
         onOpenChange={setCommandDialogOpen}
+      />
+      <ImportGithubDialog
+        open={importDialogOpen}
+        onOpenChange={setImportDialogOpen}
       />
       <div className="flex flex-col justify-center items-center p-6 min-h-screen bg-sidebar md:p-16">
         <div className="flex flex-col gap-4 items-center mx-auto w-full max-w-sm">
@@ -66,7 +75,7 @@ export const ProjectsView = () => {
               <h1
                 className={cn(
                   "text-4xl md:text-5xl font-semibold",
-                  font.className
+                  font.className,
                 )}
               >
                 Polaris
@@ -98,7 +107,7 @@ export const ProjectsView = () => {
               <Button
                 className="flex flex-col gap-6 justify-around items-start p-4 h-full rounded-none border bg-background"
                 variant="outline"
-                onClick={() => {}}
+                onClick={() => setImportDialogOpen(true)}
               >
                 <div className="flex justify-between items-center w-full">
                   <FaGithub className="size-4" />

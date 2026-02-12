@@ -10,7 +10,7 @@ export const useConversation = (id: Id<"conversations"> | null) => {
 export const useMessages = (conversationId: Id<"conversations"> | null) => {
   return useQuery(
     api.conversations.getMessages,
-    conversationId ? { conversationId } : "skip"
+    conversationId ? { conversationId } : "skip",
   );
 };
 
@@ -19,6 +19,6 @@ export const useConversations = (projectId: Id<"projects">) => {
 };
 
 export const useCreateConversation = () => {
-  // TODO: Add optimistic mutation
+  // TODO: ADD OPTIMISTIC MUTATION
   return useMutation(api.conversations.create);
 };

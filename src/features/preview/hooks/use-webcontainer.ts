@@ -7,7 +7,8 @@ import { useFiles } from "@/features/projects/hooks/use-files";
 
 import { api } from "../../../../convex/_generated/api";
 import { Id } from "../../../../convex/_generated/dataModel";
-// Singleton WebContainer instance
+
+// SINGLETON WEBCONTAINER INSTANCE
 let webcontainerInstance: WebContainer | null = null;
 let bootPromise: Promise<WebContainer> | null = null;
 const getWebContainer = async (): Promise<WebContainer> => {
@@ -51,7 +52,7 @@ export const useWebContainer = ({
   const hasStartedRef = useRef(false);
   // Fetch files from Convex (auto-updates on changes)
   const files = useFiles(projectId);
-  // Initial boot and mount
+  // INITIAL BOOT AND MOUNT
   useEffect(() => {
     if (!enabled || !files || files.length === 0 || hasStartedRef.current) {
       return;
@@ -90,7 +91,8 @@ export const useWebContainer = ({
         if (installExitCode !== 0) {
           throw new Error(`${installCmd} failed with code ${installExitCode}`);
         }
-        // Parse dev command (default: npm run dev)
+
+        // PARSE DEV COMMAND (DEFAULT: npm run dev)
         const devCmd = settings?.devCommand || "npm run dev";
         const [devBin, ...devArgs] = devCmd.split(" ");
         appendOutput(`\n$ ${devCmd}\n`);
@@ -115,7 +117,8 @@ export const useWebContainer = ({
     settings?.devCommand,
     settings?.installCommand,
   ]);
-  // Sync file changes (hot-reload)
+
+  // SYNC FILE CHANGES (HOT-RELOAD)
   useEffect(() => {
     const container = containerRef.current;
     if (!container || !files || status !== "running") return;
@@ -126,7 +129,8 @@ export const useWebContainer = ({
       container.fs.writeFile(filePath, file.content);
     }
   }, [files, status]);
-  // Reset when disabled
+
+  // RESET WHEN DISABLED
   useEffect(() => {
     if (!enabled) {
       hasStartedRef.current = false;
@@ -135,7 +139,8 @@ export const useWebContainer = ({
       setError(null);
     }
   }, [enabled]);
-  // Restart the entire WebContainer process
+
+  // RESTART THE ENTIRE WEBCONTAINER PROCESS
   const restart = useCallback(() => {
     teardownWebContainer();
     containerRef.current = null;

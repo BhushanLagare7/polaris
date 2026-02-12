@@ -57,7 +57,7 @@ export const createMessage = mutation({
       status: args.status,
     });
 
-    // Update conversation updatedAt
+    // UPDATE CONVERSATION'S "updatedAt"
     await ctx.db.patch(args.conversationId, {
       updatedAt: Date.now(),
     });
@@ -120,7 +120,7 @@ export const getProcessingMessages = query({
   },
 });
 
-// Used for Agent conversation context
+// USED FOR AGENT CONVERSATION CONTEXT
 export const getRecentMessages = query({
   args: {
     internalKey: v.string(),
@@ -144,7 +144,7 @@ export const getRecentMessages = query({
   },
 });
 
-// Used for Agent to update conversation title
+// USED FOR AGENT TO UPDATE CONVERSATION TITLE
 export const updateConversationTitle = mutation({
   args: {
     internalKey: v.string(),
@@ -161,7 +161,7 @@ export const updateConversationTitle = mutation({
   },
 });
 
-// Used for Agent "ListFiles" tool
+// USED FOR AGENT "listFiles" TOOL
 export const getProjectFiles = query({
   args: {
     internalKey: v.string(),
@@ -177,7 +177,7 @@ export const getProjectFiles = query({
   },
 });
 
-// Used for Agent "ReadFile" tool
+// USED FOR AGENT "readFile" TOOL
 export const getFileById = query({
   args: {
     internalKey: v.string(),
@@ -190,7 +190,7 @@ export const getFileById = query({
   },
 });
 
-// Used for Agent "UpdateFile" tool
+// USED FOR AGENT "updateFile" TOOL
 export const updateFile = mutation({
   args: {
     internalKey: v.string(),
@@ -217,7 +217,7 @@ export const updateFile = mutation({
   },
 });
 
-// Used for Agent "CreateFile" tool
+// USED FOR AGENT "createFile" TOOL
 export const createFile = mutation({
   args: {
     internalKey: v.string(),
@@ -259,7 +259,7 @@ export const createFile = mutation({
   },
 });
 
-// Used for Agent bulk "CreateFiles" tool
+// USED FOR AGENT BULK "createFiles" TOOL
 export const createFiles = mutation({
   args: {
     internalKey: v.string(),
@@ -313,7 +313,7 @@ export const createFiles = mutation({
   },
 });
 
-// Used for Agent "CreateFolder" tool
+// USED FOR AGENT "createFolder" TOOL
 export const createFolder = mutation({
   args: {
     internalKey: v.string(),
@@ -353,7 +353,7 @@ export const createFolder = mutation({
   },
 });
 
-// Used for Agent "RenameFile" tool
+// USED FOR AGENT "renameFile" TOOL
 export const renameFile = mutation({
   args: {
     internalKey: v.string(),
@@ -371,7 +371,10 @@ export const renameFile = mutation({
       });
     }
 
-    // Check if a file with the new name already exists in the same parent folder
+    /**
+     * CHECK IF A FILE WITH THE NEW NAME ALREADY EXISTS IN THE SAME PARENT
+     * FOLDER
+     */
     const siblingFiles = await ctx.db
       .query("files")
       .withIndex("by_project_parent", (q) =>
@@ -401,7 +404,7 @@ export const renameFile = mutation({
   },
 });
 
-// Used for Agent "DeleteFile" tool
+// USED FOR AGENT "deleteFile" TOOL
 export const deleteFile = mutation({
   args: {
     internalKey: v.string(),
@@ -418,12 +421,12 @@ export const deleteFile = mutation({
       });
     }
 
-    // Recursively delete file/folder and all its descendants
+    // RECURSIVELY DELETE FILE/FOLDER AND ALL ITS DESCENDANTS
     const deleteRecursive = async (fileId: typeof args.fileId) => {
       const item = await ctx.db.get(fileId);
       if (!item) return;
 
-      // If it's a folder, delete all its children first
+      // IF IT'S A FOLDER, DELETE ALL ITS CHILDREN FIRST
       if (item.type === "folder") {
         const children = await ctx.db
           .query("files")
@@ -437,17 +440,189 @@ export const deleteFile = mutation({
         }
       }
 
-      // Delete storage file if it exists
+      // DELETE STORAGE FILE IF IT EXISTS
       if (item.storageId) {
         await ctx.storage.delete(item.storageId);
       }
 
-      // Delete the item itself
+      // DELETE THE ITEM ITSELF
       await ctx.db.delete(fileId);
     };
 
     await deleteRecursive(args.fileId);
 
     return args.fileId;
+  },
+});
+
+export const cleanup = mutation({
+  args: {
+    internalKey: v.string(),
+    projectId: v.id("projects"),
+  },
+  handler: async (ctx, args) => {
+    validateInternalKey(args.internalKey);
+
+    const files = await ctx.db
+      .query("files")
+      .withIndex("by_project", (q) => q.eq("projectId", args.projectId))
+      .collect();
+
+    for (const file of files) {
+      // DELETE STORAGE FILE IF IT EXISTS
+      if (file.storageId) {
+        await ctx.storage.delete(file.storageId);
+      }
+      await ctx.db.delete(file._id);
+    }
+
+    return { deleted: files.length };
+  },
+});
+
+export const generateUploadUrl = mutation({
+  args: {
+    internalKey: v.string(),
+  },
+  handler: async (ctx, args) => {
+    validateInternalKey(args.internalKey);
+
+    return await ctx.storage.generateUploadUrl();
+  },
+});
+
+export const createBinaryFile = mutation({
+  args: {
+    internalKey: v.string(),
+    projectId: v.id("projects"),
+    name: v.string(),
+    storageId: v.id("_storage"),
+    parentId: v.optional(v.id("files")),
+  },
+  handler: async (ctx, args) => {
+    validateInternalKey(args.internalKey);
+
+    const files = await ctx.db
+      .query("files")
+      .withIndex("by_project_parent", (q) =>
+        q.eq("projectId", args.projectId).eq("parentId", args.parentId),
+      )
+      .collect();
+
+    const existingFile = files.find(
+      (file) => file.name === args.name && file.type === "file",
+    );
+    if (existingFile) {
+      throw new ConvexError({
+        code: "ALREADY_EXISTS",
+        message: "File already exists",
+      });
+    }
+
+    const fileId = await ctx.db.insert("files", {
+      projectId: args.projectId,
+      parentId: args.parentId,
+      name: args.name,
+      storageId: args.storageId,
+      type: "file",
+      updatedAt: Date.now(),
+    });
+
+    return fileId;
+  },
+});
+
+export const updateImportStatus = mutation({
+  args: {
+    internalKey: v.string(),
+    projectId: v.id("projects"),
+    status: v.optional(
+      v.union(
+        v.literal("importing"),
+        v.literal("completed"),
+        v.literal("failed"),
+      ),
+    ),
+  },
+  handler: async (ctx, args) => {
+    validateInternalKey(args.internalKey);
+
+    await ctx.db.patch(args.projectId, {
+      importStatus: args.status,
+      updatedAt: Date.now(),
+    });
+  },
+});
+
+export const updateExportStatus = mutation({
+  args: {
+    internalKey: v.string(),
+    projectId: v.id("projects"),
+    status: v.optional(
+      v.union(
+        v.literal("exporting"),
+        v.literal("completed"),
+        v.literal("failed"),
+        v.literal("cancelled"),
+      ),
+    ),
+    exportRepoUrl: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    validateInternalKey(args.internalKey);
+
+    await ctx.db.patch(args.projectId, {
+      exportStatus: args.status,
+      exportRepoUrl: args.exportRepoUrl,
+      updatedAt: Date.now(),
+    });
+  },
+});
+
+export const getProjectFilesWithUrls = query({
+  args: {
+    internalKey: v.string(),
+    projectId: v.id("projects"),
+  },
+  handler: async (ctx, args) => {
+    validateInternalKey(args.internalKey);
+
+    const files = await ctx.db
+      .query("files")
+      .withIndex("by_project", (q) => q.eq("projectId", args.projectId))
+      .collect();
+
+    return await Promise.all(
+      files.map(async (file) => {
+        const storageUrl = file.storageId
+          ? await ctx.storage.getUrl(file.storageId)
+          : null;
+
+        return {
+          ...file,
+          storageUrl,
+        };
+      }),
+    );
+  },
+});
+
+export const createProject = mutation({
+  args: {
+    internalKey: v.string(),
+    name: v.string(),
+    ownerId: v.string(),
+  },
+  handler: async (ctx, args) => {
+    validateInternalKey(args.internalKey);
+
+    const projectId = await ctx.db.insert("projects", {
+      name: args.name,
+      ownerId: args.ownerId,
+      updatedAt: Date.now(),
+      importStatus: "importing",
+    });
+
+    return projectId;
   },
 });

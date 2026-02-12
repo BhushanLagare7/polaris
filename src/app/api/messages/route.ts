@@ -40,7 +40,7 @@ export async function POST(req: Request) {
       );
     }
 
-    // Call convex mutation, query
+    // CALL CONVEX MUTATION, QUERY
     const conversation = await convex.query(api.system.getConversationById, {
       conversationId: conversationId as Id<"conversations">,
       internalKey,
@@ -55,14 +55,14 @@ export async function POST(req: Request) {
 
     const projectId = conversation.projectId;
 
-    // Find all processing messages in this project
+    // FIND ALL PROCESSING MESSAGES IN THIS PROJECT
     const processingMessages = await convex.query(
       api.system.getProcessingMessages,
       { internalKey, projectId },
     );
 
     if (processingMessages.length > 0) {
-      // Cancel all processing messages
+      // CANCEL ALL PROCESSING MESSAGES
       await Promise.all(
         processingMessages.map(async (message) => {
           await inngest.send({
@@ -81,7 +81,7 @@ export async function POST(req: Request) {
       );
     }
 
-    // Create user message
+    // CREATE USER MESSAGE
     await convex.mutation(api.system.createMessage, {
       internalKey,
       conversationId: conversationId as Id<"conversations">,
@@ -90,7 +90,7 @@ export async function POST(req: Request) {
       role: "user",
     });
 
-    // Create assistant message placeholder with processing status
+    // CREATE ASSISTANT MESSAGE PLACEHOLDER WITH PROCESSING STATUS
     const assistantMessageId = await convex.mutation(api.system.createMessage, {
       internalKey,
       conversationId: conversationId as Id<"conversations">,
@@ -100,7 +100,7 @@ export async function POST(req: Request) {
       status: "processing",
     });
 
-    // Send event to inngest to process the message
+    // SEND EVENT TO INNGEST TO PROCESS THE MESSAGE
     const event = await inngest.send({
       name: "message/sent",
       data: {

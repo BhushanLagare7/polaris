@@ -1,11 +1,11 @@
-// Base padding for root level items (after project header)
+// BASE PADDING FOR ROOT LEVEL ITEMS (AFTER PROJECT HEADER)
 export const BASE_PADDING = 12;
 
-// Additional padding for nested levels
+// ADDITIONAL PADDING FOR NESTED LEVELS
 export const LEVEL_PADDING = 12;
 
 export const getItemPadding = (level: number, isFile: boolean) => {
-  // Files need extra padding since they don't have the chevron
+  // FILES NEED EXTRA PADDING SINCE THEY DON'T HAVE THE CHEVRON
   const fileOffset = isFile ? 16 : 0;
   return BASE_PADDING + LEVEL_PADDING * level + fileOffset;
 };

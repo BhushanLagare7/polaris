@@ -67,7 +67,7 @@ export const FileExplorer = ({ projectId }: { projectId: Id<"projects"> }) => {
           <ChevronRightIcon
             className={cn(
               "size-4 shrink-0 text-muted-foreground",
-              isOpen && "rotate-90"
+              isOpen && "rotate-90",
             )}
           />
           <p className="text-xs uppercase line-clamp-1">

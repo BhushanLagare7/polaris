@@ -34,8 +34,8 @@ export default defineSchema({
     parentId: v.optional(v.id("files")),
     name: v.string(),
     type: v.union(v.literal("file"), v.literal("folder")),
-    content: v.optional(v.string()), // Text files only
-    storageId: v.optional(v.id("_storage")), // Binary files only
+    content: v.optional(v.string()), // TEXT FILES ONLY
+    storageId: v.optional(v.id("_storage")), // BINARY FILES ONLY
     updatedAt: v.number(),
   })
     .index("by_project", ["projectId"])

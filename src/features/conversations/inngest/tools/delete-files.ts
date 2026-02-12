@@ -36,7 +36,7 @@ export const createDeleteFilesTool = ({
 
       const { fileIds } = parsed.data;
 
-      // Validate all files exist before running the step
+      // VALIDATE ALL FILES EXIST BEFORE RUNNING THE STEP
       const filesToDelete: {
         id: string;
         name: string;

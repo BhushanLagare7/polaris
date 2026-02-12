@@ -141,16 +141,16 @@ export const getFolderContents = query({
     const files = await ctx.db
       .query("files")
       .withIndex("by_project_parent", (q) =>
-        q.eq("projectId", args.projectId).eq("parentId", args.parentId)
+        q.eq("projectId", args.projectId).eq("parentId", args.parentId),
       )
       .collect();
 
-    // Sort: folders first, then files, alphabetically within each group
+    // SORT: FOLDERS FIRST, THEN FILES, ALPHABETICALLY WITHIN EACH GROUP
     files.sort((a, b) => {
-      // Folders come before files
+      // FOLDERS COME BEFORE FILES
       if (a.type === "folder" && b.type === "file") return -1;
       if (a.type === "file" && b.type === "folder") return 1;
-      // Both are folders or both are files, sort alphabetically by name
+      // BOTH ARE FOLDERS OR BOTH ARE FILES, SORT ALPHABETICALLY BY NAME
       return a.name.localeCompare(b.name);
     });
 
@@ -183,16 +183,16 @@ export const createFile = mutation({
       });
     }
 
-    // check if file with same name already exists in their parent folder
+    // CHECK IF FILE WITH SAME NAME ALREADY EXISTS IN THEIR PARENT FOLDER
     const files = await ctx.db
       .query("files")
       .withIndex("by_project_parent", (q) =>
-        q.eq("projectId", args.projectId).eq("parentId", args.parentId)
+        q.eq("projectId", args.projectId).eq("parentId", args.parentId),
       )
       .collect();
 
     const existingFile = files.find(
-      (file) => file.name === args.name && file.type === "file"
+      (file) => file.name === args.name && file.type === "file",
     );
     if (existingFile) {
       throw new ConvexError({
@@ -212,8 +212,8 @@ export const createFile = mutation({
       updatedAt: now,
     });
 
-    // Update project updatedAt
-    await ctx.db.patch("projects", args.projectId, {
+    // UPDATE PROJECT "updatedAt"
+    await ctx.db.patch(args.projectId, {
       updatedAt: now,
     });
   },
@@ -243,16 +243,16 @@ export const createFolder = mutation({
       });
     }
 
-    // check if folder with same name already exists in their parent folder
+    // CHECK IF FOLDER WITH SAME NAME ALREADY EXISTS IN THEIR PARENT FOLDER
     const files = await ctx.db
       .query("files")
       .withIndex("by_project_parent", (q) =>
-        q.eq("projectId", args.projectId).eq("parentId", args.parentId)
+        q.eq("projectId", args.projectId).eq("parentId", args.parentId),
       )
       .collect();
 
     const existingFolder = files.find(
-      (file) => file.name === args.name && file.type === "folder"
+      (file) => file.name === args.name && file.type === "folder",
     );
     if (existingFolder) {
       throw new ConvexError({
@@ -271,8 +271,8 @@ export const createFolder = mutation({
       updatedAt: now,
     });
 
-    // Update project updatedAt
-    await ctx.db.patch("projects", args.projectId, {
+    // UPDATE PROJECT "updatedAt"
+    await ctx.db.patch(args.projectId, {
       updatedAt: now,
     });
   },
@@ -309,11 +309,14 @@ export const renameFile = mutation({
       });
     }
 
-    // Check if the a file with the new name already exists in the same parent folder
+    /**
+     * CHECK IF A FILE WITH THE NEW NAME ALREADY EXISTS IN THE SAME PARENT
+     * FOLDER
+     */
     const siblings = await ctx.db
       .query("files")
       .withIndex("by_project_parent", (q) =>
-        q.eq("projectId", file.projectId).eq("parentId", file.parentId)
+        q.eq("projectId", file.projectId).eq("parentId", file.parentId),
       )
       .collect();
 
@@ -321,7 +324,7 @@ export const renameFile = mutation({
       (file) =>
         file.name === args.newName &&
         file.type === file.type &&
-        file._id !== args.id
+        file._id !== args.id,
     );
     if (existingFile) {
       throw new ConvexError({
@@ -332,14 +335,14 @@ export const renameFile = mutation({
 
     const now = Date.now();
 
-    // Update the file name
-    await ctx.db.patch("files", args.id, {
+    // UPDATE THE FILE NAME
+    await ctx.db.patch(args.id, {
       name: args.newName,
       updatedAt: now,
     });
 
-    // Update project updatedAt
-    await ctx.db.patch("projects", file.projectId, {
+    // UPDATE PROJECT "updatedAt"
+    await ctx.db.patch(file.projectId, {
       updatedAt: now,
     });
   },
@@ -375,19 +378,19 @@ export const deleteFile = mutation({
       });
     }
 
-    // Recursively delete file/folder and all descendants
+    // RECURSIVELY DELETE FILE/FOLDER AND ALL DESCENDANTS
     const deleteRecursive = async (fileId: Id<"files">) => {
       const file = await ctx.db.get("files", fileId);
       if (!file) {
         return;
       }
 
-      // If it's a folder, delete all files in it
+      // IF IT'S A FOLDER, DELETE ALL FILES IN IT
       if (file.type === "folder") {
         const childrenFiles = await ctx.db
           .query("files")
           .withIndex("by_project_parent", (q) =>
-            q.eq("projectId", file.projectId).eq("parentId", fileId)
+            q.eq("projectId", file.projectId).eq("parentId", fileId),
           )
           .collect();
 
@@ -396,19 +399,19 @@ export const deleteFile = mutation({
         }
       }
 
-      // Delete storage files if it exists
+      // DELETE STORAGE FILES IF IT EXISTS
       if (file.storageId) {
         await ctx.storage.delete(file.storageId);
       }
 
-      // Delete the file/folder itself
+      // DELETE THE FILE/FOLDER ITSELF
       await ctx.db.delete("files", fileId);
     };
 
     await deleteRecursive(args.id);
 
-    // Update project updatedAt
-    await ctx.db.patch("projects", file.projectId, {
+    // UPDATE PROJECT "updatedAt"
+    await ctx.db.patch(file.projectId, {
       updatedAt: Date.now(),
     });
   },
@@ -447,13 +450,13 @@ export const updateFile = mutation({
 
     const now = Date.now();
 
-    await ctx.db.patch("files", args.id, {
+    await ctx.db.patch(args.id, {
       content: args.content,
       updatedAt: now,
     });
 
-    // Update project updatedAt
-    await ctx.db.patch("projects", file.projectId, {
+    // UPDATE PROJECT "updatedAt"
+    await ctx.db.patch(file.projectId, {
       updatedAt: now,
     });
   },

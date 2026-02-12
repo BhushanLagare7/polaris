@@ -34,7 +34,7 @@ export const createUpdateFileTool = ({
 
       const { fileId, content } = parsed.data;
 
-      // Validate file exists before running the step
+      // VALIDATE FILE EXISTS BEFORE RUNNING THE STEP
       const file = await convex.query(api.system.getFileById, {
         internalKey,
         fileId: fileId as Id<"files">,

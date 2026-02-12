@@ -58,7 +58,7 @@ export const ConversationSidebar = ({
   const activeConversation = useConversation(activeConversationId);
   const conversationMessages = useMessages(activeConversationId);
 
-  // Check if any message is currently processing
+  // CHECK IF ANY MESSAGE IS CURRENTLY PROCESSING
   const isProcessing = conversationMessages?.some(
     (message) => message.status === "processing",
   );
@@ -94,7 +94,7 @@ export const ConversationSidebar = ({
   };
 
   const handleSubmit = async (message: PromptInputMessage) => {
-    // If processing and no new message, this is just a stop function
+    // IF PROCESSING AND NO NEW MESSAGE, THIS IS JUST A STOP FUNCTION
     if (isProcessing && !message.text) {
       await handleCancel();
       setInput("");
@@ -109,7 +109,7 @@ export const ConversationSidebar = ({
       }
     }
 
-    // Trigger inngest function via API
+    // TRIGGER INNGEST FUNCTION VIA API
     try {
       await ky.post("/api/messages", {
         json: {
@@ -166,7 +166,7 @@ export const ConversationSidebar = ({
                       <span>Thinking...</span>
                     </div>
                   ) : message.status === "cancelled" ? (
-                    <span className="text-muted-foreground italic">
+                    <span className="italic text-muted-foreground">
                       Request cancelled
                     </span>
                   ) : (

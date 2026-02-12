@@ -36,7 +36,7 @@ export async function POST(request: Request) {
       );
     }
 
-    // Find all processing messages in this project
+    // FIND ALL PROCESSING MESSAGES IN THIS PROJECT
     const processingMessages = await convex.query(
       api.system.getProcessingMessages,
       { internalKey, projectId: projectId as Id<"projects"> },
@@ -46,7 +46,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ success: true, cancelled: false });
     }
 
-    // Cancel all processing messages
+    // CANCEL ALL PROCESSING MESSAGES
     const cancelledIds = await Promise.all(
       processingMessages.map(async (message) => {
         await inngest.send({

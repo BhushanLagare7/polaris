@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { FaGithub } from "react-icons/fa";
 
 import { Allotment } from "allotment";
 
@@ -11,6 +10,7 @@ import { cn } from "@/lib/utils";
 
 import { Id } from "../../../../convex/_generated/dataModel";
 
+import { ExportPopover } from "./export-popover";
 import { FileExplorer } from "./file-explorer";
 import { PreviewView } from "./preview-view";
 
@@ -67,13 +67,7 @@ export const ProjectIdView = ({ projectId }: ProjectIdViewProps) => {
           onClick={() => setActiveView("preview")}
         />
         <div className="flex flex-1 justify-end h-full">
-          <div
-            aria-label="Export to GitHub"
-            className="flex gap-1.5 items-center px-3 h-full border-l cursor-pointer text-muted-foreground hover:bg-accent/30"
-          >
-            <FaGithub className="size-3.5" />
-            <span className="text-sm">Export</span>
-          </div>
+          <ExportPopover projectId={projectId} />
         </div>
       </nav>
       <div className="relative flex-1">

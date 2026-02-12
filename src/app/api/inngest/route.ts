@@ -1,11 +1,12 @@
 import { serve } from "inngest/next";
 
 import { processMessage } from "@/features/conversations/inngest/process-message";
+import { exportToGithub } from "@/features/projects/inngest/export-to-github";
+import { importGithubRepo } from "@/features/projects/inngest/import-github-repo";
 import { inngest } from "@/inngest/client";
-import { demoError, demoGenerateText } from "@/inngest/functions";
 
-// Create an API that serves Inngest functions
+// CREATE AN API THAT SERVES INNGEST FUNCTIONS
 export const { GET, POST, PUT } = serve({
   client: inngest,
-  functions: [demoError, demoGenerateText, processMessage],
+  functions: [processMessage, importGithubRepo, exportToGithub],
 });

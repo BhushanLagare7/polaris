@@ -43,7 +43,7 @@ export const processMessage = inngest.createFunction(
       const { messageId } = event.data.event.data as MessageEvent;
       const internalKey = process.env.POLARIS_CONVEX_INTERNAL_KEY;
 
-      // update the message with error content
+      // UPDATE THE MESSAGE WITH ERROR CONTENT
       if (internalKey) {
         await step.run("update-message-on-failure", async () => {
           await convex.mutation(api.system.updateMessageContent, {
@@ -73,7 +73,7 @@ export const processMessage = inngest.createFunction(
     // TODO: Check if this is needed
     await step.sleep("wait-for-db-sync", "1s");
 
-    // Get conversation for title generation check
+    // GET CONVERSATION FOR TITLE GENERATION CHECK
     const conversation = await step.run("get-conversation", async () => {
       return await convex.query(api.system.getConversationById, {
         conversationId,
@@ -85,7 +85,7 @@ export const processMessage = inngest.createFunction(
       throw new NonRetriableError("Conversation not found");
     }
 
-    // Fetch recent messages for conversation context
+    // FETCH RECENT MESSAGES FOR CONVERSATION CONTEXT
     const recentMessages = await step.run("get-recent-messages", async () => {
       return await convex.query(api.system.getRecentMessages, {
         conversationId,
@@ -94,10 +94,13 @@ export const processMessage = inngest.createFunction(
       });
     });
 
-    // Build system prompt with conversation history (exclude the current processing message)
+    /**
+     * BUILD SYSTEM PROMPT WITH CONVERSATION HISTORY (EXCLUDE THE CURRENT
+     * PROCESSING MESSAGE)
+     */
     let systemPrompt = CODING_AGENT_SYSTEM_PROMPT;
 
-    // Filter out the current processing message and empty messages
+    // FILTER OUT THE CURRENT PROCESSING MESSAGE AND EMPTY MESSAGES
     const contextMessages = recentMessages.filter(
       (m) => m._id !== messageId && m.content.trim() !== "",
     );
@@ -110,7 +113,7 @@ export const processMessage = inngest.createFunction(
       systemPrompt += `\n\n## Previous Conversation (for context only - do NOT repeat these responses):\n${historyText}\n\n## Current Request:\nRespond ONLY to the user's new message below. Do not repeat or reference your previous responses.`;
     }
 
-    // Generate conversation title if it's still the default
+    // GENERATE CONVERSATION TITLE IF IT'S STILL THE DEFAULT
     const shouldGenerateTitle =
       conversation.title === DEFAULT_CONVERSATION_TITLE;
 
@@ -150,7 +153,7 @@ export const processMessage = inngest.createFunction(
       }
     }
 
-    // Create the coding agent with file tools
+    // CREATE THE CODING AGENT WITH FILE TOOLS
     const codingAgent = createAgent({
       name: "polaris",
       description: "An expert AI coding assistant",
@@ -170,7 +173,7 @@ export const processMessage = inngest.createFunction(
       ],
     });
 
-    // Create a network with single agent
+    // CREATE A NETWORK WITH SINGLE AGENT
     const network = createNetwork({
       name: "polaris-network",
       agents: [codingAgent],
@@ -185,8 +188,10 @@ export const processMessage = inngest.createFunction(
           (m) => m.type === "tool_call",
         );
 
-        // Anthropic outputs text AND tool calls in the same response
-        // Only stop if there's text WITHOUT tool calls (final response)
+        /**
+         * ANTHROPIC OUTPUTS TEXT AND TOOL CALLS IN THE SAME RESPONSE
+         * ONLY STOP IF THERE'S TEXT WITHOUT TOOLS CALLS (FINAL RESPONSE)
+         */
         if (hasTextResponse && !hasToolCalls) {
           return undefined;
         }
@@ -195,10 +200,10 @@ export const processMessage = inngest.createFunction(
       },
     });
 
-    // Run the network (this will run the agent until it stops)
+    // RUN THE NETWORK (THIS WILL RUN THE AGENT UNTIL IT STOPS)
     const result = await network.run(message);
 
-    // Extract the assistant's text response from the last agent result
+    // EXTRACT THE ASSISTANT'S TEXT RESPONSE FROM THE LAST AGENT RESULT
     const lastResult = result.state.results.at(-1);
     const textMessage = lastResult?.output.find(
       (m) => m.role === "assistant" && m.type === "text",
@@ -214,7 +219,10 @@ export const processMessage = inngest.createFunction(
           : textMessage.content.map((c) => c.text).join("");
     }
 
-    // Update the assistant message with the response (this also sets the status to completed)
+    /**
+     * UPDATE THE ASSISTANT MESSAGE WITH THE RESPONSE (THIS ALSO SETS THE
+     * STATUS TO COMPLETED)
+     */
     await step.run("update-assistant-message", async () => {
       await convex.mutation(api.system.updateMessageContent, {
         internalKey,

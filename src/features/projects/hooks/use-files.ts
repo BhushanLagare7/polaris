@@ -21,22 +21,22 @@ export const useUpdateFile = () => {
 
 export const useCreateFile = () => {
   return useMutation(api.files.createFile);
-  // TODO: Add optimistic update
+  // TODO: ADD OPTIMISTIC UPDATE
 };
 
 export const useCreateFolder = () => {
   return useMutation(api.files.createFolder);
-  // TODO: Add optimistic update
+  // TODO: ADD OPTIMISTIC UPDATE
 };
 
 export const useRenameFile = () => {
   return useMutation(api.files.renameFile);
-  // TODO: Add optimistic update
+  // TODO: ADD OPTIMISTIC UPDATE
 };
 
 export const useDeleteFile = () => {
   return useMutation(api.files.deleteFile);
-  // TODO: Add optimistic update
+  // TODO: ADD OPTIMISTIC UPDATE
 };
 
 export const useFolderContents = ({

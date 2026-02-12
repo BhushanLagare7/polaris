@@ -28,7 +28,7 @@ export const createListFilesTool = ({
             projectId,
           });
 
-          // Sort: folders first, then files, alphabetically
+          // SORT: FOLDERS FIRST, THEN FILES, ALPHABETICALLY
           const sorted = files.sort((a, b) => {
             if (a.type !== b.type) {
               return a.type === "folder" ? -1 : 1;

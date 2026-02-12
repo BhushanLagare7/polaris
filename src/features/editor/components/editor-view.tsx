@@ -22,7 +22,7 @@ export const EditorView = ({ projectId }: { projectId: Id<"projects"> }) => {
   const isActiveFileBinary = activeFile && activeFile.storageId;
   const isActiveFileText = activeFile && !activeFile.storageId;
 
-  // Cleanup pending debounced updates on unmount or file change
+  // CLEANUP PENDING DEBOUNCED UPDATES ON UNMOUNT OR FILE CHANGE
   useEffect(() => {
     return () => {
       if (timeoutRef.current) {

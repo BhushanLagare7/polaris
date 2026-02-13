@@ -310,7 +310,7 @@ const createQuickEditTooltip = (state: EditorState): readonly Tooltip[] => {
           // The specific code the user selected for editing
           const selectedCode = editorView.state.doc.sliceString(
             selection.from,
-            selection.to
+            selection.to,
           );
 
           // Full document content (provides context for AI)
@@ -333,7 +333,7 @@ const createQuickEditTooltip = (state: EditorState): readonly Tooltip[] => {
               fullCode, // Full file context
               instruction, // User's natural language instruction
             },
-            currentAbortController.signal // Allows request cancellation
+            currentAbortController.signal, // Allows request cancellation
           );
 
           // ─────────────────────────────────────────────────────────
@@ -584,12 +584,12 @@ const captureViewExtension = EditorView.updateListener.of((update) => {
  * // With other extensions
  * const extensions = [
  *   javascript({ typescript: true }),
- *   quickEdit("app.tsx"),
+ *   quickEdit(),
  *   // ... more extensions
  * ];
  * ```
  */
-export const quickEdit = (fileName: string) => [
+export const quickEdit = () => [
   quickEditState,
   quickEditTooltipField,
   quickEditKeymap,

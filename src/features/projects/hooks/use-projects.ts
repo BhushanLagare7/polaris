@@ -5,7 +5,6 @@ import { api } from "../../../../convex/_generated/api";
 import { Id } from "../../../../convex/_generated/dataModel";
 
 export const useUpdateProjectSettings = () => {
-  // TODO: ADD OPTIMISTIC UPDATE
   return useMutation(api.projects.updateSettings);
 };
 

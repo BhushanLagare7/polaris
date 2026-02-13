@@ -37,8 +37,14 @@ export const Tree = ({
 
   const createFile = useCreateFile();
   const createFolder = useCreateFolder();
-  const deleteFile = useDeleteFile();
-  const renameFile = useRenameFile();
+  const deleteFile = useDeleteFile({
+    projectId,
+    parentId: item.parentId,
+  });
+  const renameFile = useRenameFile({
+    projectId,
+    parentId: item.parentId,
+  });
 
   const { openFile, closeTab, activeTabId } = useEditor(projectId);
 
@@ -125,7 +131,7 @@ export const Tree = ({
         <ChevronRightIcon
           className={cn(
             "size-4 shrink-0 text-muted-foreground",
-            isOpen && "rotate-90"
+            isOpen && "rotate-90",
           )}
         />
         <FolderIcon className="size-4" folderName={folderName} />

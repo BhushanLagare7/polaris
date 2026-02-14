@@ -29,7 +29,7 @@ export const CodeEditor = ({
 
   const languageExtension = useMemo(
     () => getLanguageExtension(fileName),
-    [fileName]
+    [fileName],
   );
 
   useEffect(() => {
@@ -44,7 +44,7 @@ export const CodeEditor = ({
         customSetup,
         languageExtension,
         suggestion(fileName),
-        quickEdit(fileName),
+        quickEdit(),
         selectionTooltip(),
         keymap.of([indentWithTab]),
         minimap(),

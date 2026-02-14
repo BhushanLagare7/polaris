@@ -1,4 +1,4 @@
-<![CDATA[<div align="center">
+<div align="center">
 
 # ⭐ Polaris
 
@@ -33,21 +33,21 @@ Polaris is a full-featured, browser-based IDE that combines a modern code editor
 
 ## 🏗️ Tech Stack
 
-| Layer | Technology |
-|---|---|
-| **Framework** | [Next.js 16](https://nextjs.org/) (App Router) |
-| **Language** | [TypeScript 5](https://www.typescriptlang.org/) |
-| **Backend / Database** | [Convex](https://convex.dev/) (real-time serverless backend) |
-| **Authentication** | [Clerk](https://clerk.com/) |
-| **AI / LLM** | [Vercel AI SDK](https://sdk.vercel.ai/) + [Inngest Agent Kit](https://www.inngest.com/docs/agent-kit/overview) + Google Gemini |
-| **Background Jobs** | [Inngest](https://www.inngest.com/) |
-| **Code Editor** | [CodeMirror 6](https://codemirror.net/) |
-| **In-Browser Runtime** | [WebContainers API](https://webcontainers.io/) |
-| **Styling** | [Tailwind CSS 4](https://tailwindcss.com/) + [Radix UI](https://www.radix-ui.com/) |
-| **Animations** | [Motion](https://motion.dev/) (Framer Motion) |
-| **Web Scraping** | [Firecrawl](https://www.firecrawl.dev/) |
-| **Error Monitoring** | [Sentry](https://sentry.io/) |
-| **Charts** | [Recharts](https://recharts.org/) |
+| Layer                  | Technology                                                                                                                     |
+| ---------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
+| **Framework**          | [Next.js 16](https://nextjs.org/) (App Router)                                                                                 |
+| **Language**           | [TypeScript 5](https://www.typescriptlang.org/)                                                                                |
+| **Backend / Database** | [Convex](https://convex.dev/) (real-time serverless backend)                                                                   |
+| **Authentication**     | [Clerk](https://clerk.com/)                                                                                                    |
+| **AI / LLM**           | [Vercel AI SDK](https://sdk.vercel.ai/) + [Inngest Agent Kit](https://www.inngest.com/docs/agent-kit/overview) + Google Gemini |
+| **Background Jobs**    | [Inngest](https://www.inngest.com/)                                                                                            |
+| **Code Editor**        | [CodeMirror 6](https://codemirror.net/)                                                                                        |
+| **In-Browser Runtime** | [WebContainers API](https://webcontainers.io/)                                                                                 |
+| **Styling**            | [Tailwind CSS 4](https://tailwindcss.com/) + [Radix UI](https://www.radix-ui.com/)                                             |
+| **Animations**         | [Motion](https://motion.dev/) (Framer Motion)                                                                                  |
+| **Web Scraping**       | [Firecrawl](https://www.firecrawl.dev/)                                                                                        |
+| **Error Monitoring**   | [Sentry](https://sentry.io/)                                                                                                   |
+| **Charts**             | [Recharts](https://recharts.org/)                                                                                              |
 
 ## 🚀 Getting Started
 
@@ -160,13 +160,13 @@ polaris/
 
 ## 📜 Available Scripts
 
-| Command | Description |
-|---|---|
-| `npm run dev` | Start the Next.js development server |
-| `npm run build` | Create an optimized production build |
-| `npm start` | Run the production server |
-| `npm run lint` | Run ESLint checks |
-| `npm run lint:fix` | Auto-fix ESLint issues |
+| Command            | Description                          |
+| ------------------ | ------------------------------------ |
+| `npm run dev`      | Start the Next.js development server |
+| `npm run build`    | Create an optimized production build |
+| `npm start`        | Run the production server            |
+| `npm run lint`     | Run ESLint checks                    |
+| `npm run lint:fix` | Auto-fix ESLint issues               |
 
 ## 🤝 Contributing
 
@@ -198,4 +198,3 @@ If you run into issues or have questions:
 Built with ❤️ by [Bhushan Lagare](https://github.com/BhushanLagare7)
 
 </div>
-]]>
